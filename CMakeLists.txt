@@ -13,6 +13,8 @@ set(HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SOURCES
     ${SRC_DIR}/main.c
     ${SRC_DIR}/solve.c
+    ${SRC_DIR}/rotate.c
+    ${SRC_DIR}/matrix.c
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
