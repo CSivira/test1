@@ -19,3 +19,6 @@ _deps
 
 # Build
 build/
+
+# Python
+venv
