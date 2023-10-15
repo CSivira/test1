@@ -1,4 +1,5 @@
 import math
+import sys
 
 
 def split(size: int) -> int:
@@ -30,13 +31,13 @@ def coalesce(node: Node) -> Node | None:
     if node is None:
         return None
 
-    if node.left is not None and node.right is not None:
-        if is_free(node.left) and is_free(node.right) is None:
-            return None
+    left = coalesce(node.left)
+    right = coalesce(node.right)
+    if left is None and right is None and is_free(node):
+        node.left = None
+        node.right = None
+        return None
 
-    node.left = coalesce(node.left)
-    node.right = coalesce(node.right)
-    
     return node
 
 
@@ -56,15 +57,7 @@ def traverse(node: Node, size: int) -> Node | None:
 
     split_size = split(node.size) // 2
     if node.size == size or size > split_size:
-        available_space = node.size
-
-        if node.left is not None and node.left.name is not None:
-            available_space = available_space - node.left.size
-
-        if node.right is not None and node.right.name is not None:
-            available_space = available_space - node.right.size
-
-        if available_space >= size:
+        if is_free(node.left) and is_free(node.right):
             return node
         else:
             return None
@@ -86,17 +79,17 @@ def traverse(node: Node, size: int) -> Node | None:
             return right
 
 
-def traverse_tree(node: Node, lvl: int) -> None:
+def show_memory_tree(node: Node, lvl: int) -> None:
     if node is not None:
-        traverse_tree(node.left, lvl + 1)
+        show_memory_tree(node.left, lvl + 1)
         node.show('■', lvl * 16)
-        traverse_tree(node.right, lvl + 1)
+        show_memory_tree(node.right, lvl + 1)
 
 
-def traverse_memory(node: Node) -> None:
+def show_memory(node: Node) -> None:
     if node is not None:
-        traverse_memory(node.left)
-        traverse_memory(node.right)
+        show_memory(node.left)
+        show_memory(node.right)
         if (node.left is None and node.right is None) or node.name is not None:
             node.show()
 
@@ -105,17 +98,26 @@ class Memory:
     def __init__(self, size: int):
         self.size = size
         self.tree = Node(size)
+        self.names = []
 
     def reserve(self, name: str, size: int) -> None:
-        node = traverse(self.tree, size)
+        if name in self.names:
+            print(f"El nombre '{name}' ya fue registrado en memoria")
+            return
 
+        node = traverse(self.tree, size)
         if node is None:
-            print("No")
+            print(f"No hay suficiente espacio para reservar el nombre {name}")
         else:
             node.name = name
+            self.names.append(name)
 
     def free(self, name: str) -> None:
         node = search(self.tree, name, None)
+
+        if node is None:
+            print(f"El nombre '{name}' no se encuentra registrado en la memoria")
+            return
 
         if node.left is not None and node.left.name == name:
             node.left.name = None
@@ -126,30 +128,28 @@ class Memory:
         coalesce(self.tree)
 
     def show(self) -> None:
-        traverse_memory(self.tree)
-        traverse_tree(self.tree, 0)
+        show_memory(self.tree)
+        show_memory_tree(self.tree, 0)
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
 def main():
-    memory = Memory(1024)
-
-    memory.reserve('A', 32)
-    memory.show()
-    memory.reserve('B', 64)
-    memory.show()
-    memory.reserve('C', 60)
-    memory.show()
-    memory.reserve('D', 150)
-    memory.show()
-    memory.free('B')
-    memory.show()
-    memory.free('A')
-    memory.show()
-    memory.reserve('E', 100)
-    memory.show()
-    memory.reserve('F', 100)
-    memory.show()
+    # memory.reserve('A', 32)
+    # memory.show()
+    # memory.reserve('B', 64)
+    # memory.show()
+    # memory.reserve('C', 60)
+    # memory.show()
+    # memory.reserve('D', 150)
+    # memory.show()
+    # memory.free('B')
+    # memory.show()
+    # memory.free('A')
+    # memory.show()
+    # memory.reserve('E', 100)
+    # memory.show()
+    # memory.reserve('F', 100)
+    # memory.show()
 
     # memory.reserve("A", 256)
     # memory.show()
@@ -159,6 +159,46 @@ def main():
     # memory.show()
     # memory.reserve("F", 32)
     # memory.show()
+
+    if len(sys.argv) != 2 and 0 >= int(sys.argv[1]):
+        print("La cantidad de memoria no es correcto o no fue suministrada")
+        return
+
+    memory = Memory(int(sys.argv[1]))
+    while True:
+        command = input()
+
+        if len(command) == 0:
+            continue
+
+        command = command.split(" ")
+
+        match command[0]:
+            case "RESERVAR":
+                if len(command) != 3:
+                    print("Instruccion desconocida")
+                    continue
+
+                if 0 >= int(command[1]) or int(command[1]) > int(sys.argv[1]):
+                    print("La cantidad de memoria solicitada no es valida")
+                    continue
+
+                memory.reserve(command[2], int(command[1]))
+            case "LIBERAR":
+                if len(command) != 2:
+                    print("Instruccion desconocida")
+                    continue
+
+                memory.free(command[1])
+
+            case "MOSTRAR":
+                memory.show()
+
+            case "SALIR":
+                break
+
+            case _:
+                print("Instruccion desconocida")
 
 
 if __name__ == "__main__":
