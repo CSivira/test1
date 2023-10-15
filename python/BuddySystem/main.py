@@ -12,6 +12,7 @@ class Node:
         self.name = None
         self.left = None
         self.right = None
+        self.blocks = 0
 
     def show(self, lvl: str = '', size: int = 0) -> None:
         print(lvl * size, f"({self.name}, {self.size})")
@@ -86,12 +87,17 @@ def show_memory_tree(node: Node, lvl: int) -> None:
         show_memory_tree(node.right, lvl + 1)
 
 
-def show_memory(node: Node) -> None:
+def show_memory(node: Node, row_size: int = 64) -> None:
     if node is not None:
-        show_memory(node.left)
-        show_memory(node.right)
+        show_memory(node.left, row_size)
+        show_memory(node.right, row_size)
         if (node.left is None and node.right is None) or node.name is not None:
-            node.show()
+            blocks = round((node.blocks / node.size) * row_size)
+            fragmentation = round((node.size - node.blocks) / node.size * row_size)
+            graphic = "■" * blocks + "□" * fragmentation
+            node_name = node.name if node.name is not None else '~'
+            node_fragmentation = fragmentation if node.name is not None else 0
+            print(f"{graphic} | {node_name} | {node.blocks} / {node.size} | {node_fragmentation} %")
 
 
 class Memory:
@@ -110,6 +116,7 @@ class Memory:
             print(f"No hay suficiente espacio para reservar el nombre {name}")
         else:
             node.name = name
+            node.blocks = size
             self.names.append(name)
 
     def free(self, name: str) -> None:
@@ -128,36 +135,24 @@ class Memory:
         coalesce(self.tree)
 
     def show(self) -> None:
-        show_memory(self.tree)
-        show_memory_tree(self.tree, 0)
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        row_size = 100
+        title = "MEMORIA DE " + str(self.size) + " BLOQUES"
+
+        print(f"{title} {(row_size - len(title)) * ' ' + '| NOMBRE | USO / TAMAÑO | % FRAGMENTACION INTERNA'}")
+        show_memory(self.tree, row_size)
 
 
 def main():
+    # memory = Memory(1024)
+    #
     # memory.reserve('A', 32)
-    # memory.show()
     # memory.reserve('B', 64)
-    # memory.show()
     # memory.reserve('C', 60)
-    # memory.show()
     # memory.reserve('D', 150)
-    # memory.show()
     # memory.free('B')
-    # memory.show()
     # memory.free('A')
-    # memory.show()
     # memory.reserve('E', 100)
-    # memory.show()
     # memory.reserve('F', 100)
-    # memory.show()
-
-    # memory.reserve("A", 256)
-    # memory.show()
-    # memory.reserve("C", 512)
-    # memory.show()
-    # memory.reserve("B", 256)
-    # memory.show()
-    # memory.reserve("F", 32)
     # memory.show()
 
     if len(sys.argv) != 2 and 0 >= int(sys.argv[1]):
