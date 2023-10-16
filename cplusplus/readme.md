@@ -2,4 +2,7 @@
 
 * [Implementación](src/vector3D.cpp)
 
-Al ejecutar el script run.sh se ejecuta una muestra básica.
+Ejecutar usando el comando ```./run.sh```. Requiere otorgar permisos de 
+ejecución con ```chmod +x run.sh```
+
+La ejecución es una muestra básica las capacidades de la librería.
