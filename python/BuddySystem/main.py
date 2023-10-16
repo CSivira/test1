@@ -127,18 +127,22 @@ class Memory:
             return
 
         if node.left is not None and node.left.name == name:
+            node.left.blocks = 0
             node.left.name = None
 
         if node.right is not None and node.right.name == name:
+            node.right.blocks = 0
             node.right.name = None
 
         coalesce(self.tree)
+
+        self.names.remove(name)
 
     def show(self) -> None:
         row_size = 100
         title = "MEMORIA DE " + str(self.size) + " BLOQUES"
 
-        print(f"{title} {(row_size - len(title)) * ' ' + '| NOMBRE | USO / TAMAÑO | % FRAGMENTACION INTERNA'}")
+        print(f"{title} {(row_size - len(title)) * ' ' + '| NOMBRE | USO / TAMAÑO | % FRAGMENTACIÓN INTERNA'}")
         show_memory(self.tree, row_size)
 
 
@@ -156,7 +160,7 @@ def main():
     # memory.show()
 
     if len(sys.argv) != 2 and 0 >= int(sys.argv[1]):
-        print("La cantidad de memoria no es correcto o no fue suministrada")
+        print("La cantidad de memoria no es correcta o no fue suministrada")
         return
 
     memory = Memory(int(sys.argv[1]))
@@ -171,7 +175,7 @@ def main():
         match command[0]:
             case "RESERVAR":
                 if len(command) != 3:
-                    print("Instruccion desconocida")
+                    print("Instrucción desconocida")
                     continue
 
                 if 0 >= int(command[1]) or int(command[1]) > int(sys.argv[1]):
@@ -181,7 +185,7 @@ def main():
                 memory.reserve(command[2], int(command[1]))
             case "LIBERAR":
                 if len(command) != 2:
-                    print("Instruccion desconocida")
+                    print("Instrucción desconocida")
                     continue
 
                 memory.free(command[1])
@@ -193,7 +197,7 @@ def main():
                 break
 
             case _:
-                print("Instruccion desconocida")
+                print("Instrucción desconocida")
 
 
 if __name__ == "__main__":
