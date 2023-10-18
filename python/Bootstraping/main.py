@@ -1,3 +1,17 @@
+def is_compilable(language, interpreters, translators):
+    if language == "LOCAL":
+        return True
+
+    if language in interpreters and is_compilable(interpreters[language], interpreters, translators):
+        return True
+
+    for base in translators:
+        if language in translators[base] and is_compilable(base, interpreters, translators):
+            return True
+
+    return False
+
+
 def main():
     programs = {}
     interpreters = {}
@@ -13,19 +27,6 @@ def main():
             for origin, destiny in rest.items():
                 print(f"  TRADUCTOR {base} {origin} {destiny}")
         print("-------------------------------------------------------------")
-
-    def is_compilable(language):
-        if language == "LOCAL":
-            return True
-
-        if language in interpreters and is_compilable(interpreters[language]):
-            return True
-
-        for base in translators:
-            if language in translators[base] and is_compilable(base):
-                return True
-
-        return False
 
     while True:
         command = input()
@@ -53,7 +54,7 @@ def main():
             # show()
             if len(command) != 2 or command[1] not in programs:
                 print(f"No existe un programa con el name '{command[1]}'")
-            elif is_compilable(programs[command[1]]):
+            elif is_compilable(programs[command[1]], interpreters, translators):
                 print(f"Si, es posible ejecutar el programa '{command[1]}'")
             else:
                 print(f"No es posible ejecutar el programa '{command[1]}'")
