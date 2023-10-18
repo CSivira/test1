@@ -18,7 +18,7 @@ class Node:
         print(lvl * size, f"({self.name}, {self.size})")
 
 
-def is_free(node: Node) -> bool:
+def is_free(node: Node | None) -> bool:
     if node is None:
         return True
 
@@ -28,7 +28,7 @@ def is_free(node: Node) -> bool:
     return is_free(node.left) and is_free(node.right)
 
 
-def coalesce(node: Node) -> Node | None:
+def coalesce(node: Node | None) -> Node | None:
     if node is None:
         return None
 
@@ -42,26 +42,25 @@ def coalesce(node: Node) -> Node | None:
     return node
 
 
-def search(node: Node, name: str, parent: Node | None) -> Node | None:
+def search(node: Node | None, name: str, parent: Node | None) -> Node | None:
     if node is None:
-        return
+        return None
 
     if node.name == name:
-        return parent
+        return parent if parent is not None else node
 
     return search(node.left, name, node) or search(node.right, name, node)
 
 
-def traverse(node: Node, size: int) -> Node | None:
-    if node is None:
+def traverse(node: Node | None, size: int) -> Node | None:
+    if node is None or node.name is not None:
         return None
 
     split_size = split(node.size) // 2
     if node.size == size or size > split_size:
-        if is_free(node.left) and is_free(node.right):
-            return node
-        else:
+        if not is_free(node):
             return None
+        return node
 
     if node.left is None:
         node.left = Node(split_size)
@@ -126,6 +125,10 @@ class Memory:
             print(f"El nombre '{name}' no se encuentra registrado en la memoria")
             return
 
+        if node.name == name:
+            node.blocks = 0
+            node.name = None
+
         if node.left is not None and node.left.name == name:
             node.left.blocks = 0
             node.left.name = None
@@ -144,6 +147,7 @@ class Memory:
 
         print(f"{title} {(row_size - len(title)) * ' ' + '| NOMBRE | USO / TAMAÑO | % FRAGMENTACIÓN INTERNA'}")
         show_memory(self.tree, row_size)
+        show_memory_tree(self.tree, 0)
 
 
 def main():
