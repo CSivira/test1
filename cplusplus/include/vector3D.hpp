@@ -24,9 +24,9 @@ struct Vector3D {
     double operator&();
 
     void print();
+    
 
     ~Vector3D();
-    
-    private:
-        double x, y, z;
+
+    double x, y, z;
 };

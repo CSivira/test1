@@ -49,5 +49,4 @@ void Vector3D::print() {
     std::cout << "(" << x << ", " << y << ", " << z << ")" << std::endl;
 }
 
-
 Vector3D::~Vector3D() {};

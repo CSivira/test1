@@ -2,6 +2,6 @@ cmake -B build
 make -sC build
 echo -e "\n\n"
 
-./build/Vector3D
+./build/test/Vector3D_test
 
 echo -e "\n\n"
